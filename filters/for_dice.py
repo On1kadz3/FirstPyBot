@@ -1,9 +1,9 @@
 from typing import Union, Dict, Any
 
 from aiogram.filters import BaseFilter
-from aiogram.types import Message
+from aiogram.types import CallbackQuery
 
 
 class FilterForDice(BaseFilter):
-    async def __call__(self, message: Message) -> Union[bool, Dict[str, Any]]:
-        return message.text.isdigit() and int(message.text) in range(1, 7)
+    async def __call__(self, event: CallbackQuery) -> Union[bool, Dict[str, Any]]:
+        return event.data.isdigit() and int(event.data) in range(1, 7)

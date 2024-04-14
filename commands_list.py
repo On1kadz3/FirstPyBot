@@ -1,9 +1,16 @@
 # В файле содержится список команд
 # {'command': '', 'description': ''}
-commands = [
+
+ru_commands_list = [
     {'command': '/start', 'description': 'Запуск бота'},
-    {'command': '/help', 'description': 'Вызов этого меню'},
     {'command': '/dice', 'description': 'Бросок кубика'},
-    {'command': '/buttons', 'description': 'Вызов кнопок'},
+    # {'command': '/buttons', 'description': 'Вызов кнопок'},
     {'command': '/cancel', 'description': 'Отмена'}
+]
+
+en_commands_list = [
+    {'command': '/start', 'description': 'Launch bot'},
+    {'command': '/dice', 'description': 'Roll dice'},
+    # {'command': '/buttons', 'description': 'Call buttons'},
+    {'command': '/cancel', 'description': 'Cancel'}
 ]

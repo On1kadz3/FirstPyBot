@@ -1,37 +1,42 @@
 import asyncio
 
-from aiogram import Router, types
+from aiogram import Router, types, F
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
+from keybords.inline import dice_kb, play_again
+
 from filters.for_dice import FilterForDice
 
 dice_router = Router()
 
 
-class UserStates(StatesGroup):
-    WAITING_FOR_VALUE = State()
-
-
 @dice_router.message(Command("dice"))
 async def cmd_dice(message: types.Message, state: FSMContext):
-    await message.answer("Введите значение от 1 до 6 [для отмены пропишите /cancel]:")
-    await state.set_state(UserStates.WAITING_FOR_VALUE)
+    await state.update_data(last_message=message)
+    await message.answer("Выберите значение от 1 до 6:",
+                         reply_markup=dice_kb())
+    await message.delete()
 
 
-@dice_router.message(FilterForDice(), UserStates.WAITING_FOR_VALUE)
-async def cmd_dice1(message: types.Message, state: FSMContext):
-    value = message.text
-    data = await message.answer_dice(emoji='🎲')
+@dice_router.callback_query(F.data == "play_again")
+async def cmd_dice(event: types.CallbackQuery, state: FSMContext):
+    await event.answer()
+    await event.message.delete()
+    await state.update_data(last_message=event.message)
+    await event.message.answer("Выберите значение от 1 до 6:",
+                               reply_markup=dice_kb())
+
+
+@dice_router.callback_query(FilterForDice())
+async def cmd_dice1(event: types.CallbackQuery):
+    await event.message.delete()
+    await event.answer("OK")
+    value = event.data
+    data = await event.message.answer_dice(emoji='🎲')
     await asyncio.sleep(3.75)
-    await message.answer(f'значение кубика {data.dice.value}')
+    await event.message.answer(f'значение кубика {data.dice.value}')
     if int(value) == data.dice.value:
-        await message.answer("Победа!")
+        await event.message.answer("Победа!")
     else:
-        await message.answer("В следующий раз повезёт!")
-    await state.clear()
-
-
-@dice_router.message(UserStates.WAITING_FOR_VALUE)
-async def wrong_num(message: types.Message):
-    await message.answer("Неверный ввод, пожалуйства, введите чило от 1 до 6\nДля отмены пропишите /cancel")
+        await event.message.answer("В следующий раз повезёт!")
+    await event.message.answer("Сыграем ещё?", reply_markup=play_again())
