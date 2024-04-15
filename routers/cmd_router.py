@@ -19,12 +19,12 @@ async def cmd_start(message: types.Message):
     )
 
 
-# @cmd_router.message(Command("help"))
-# async def cmd_help(message: types.Message, ru_com_list: dict):
-#     response = 'Список команд\n'
-#     for cmd in ru_com_list:
-#         response += f"{cmd['command']}: {cmd['description']}\n"
-#     await message.answer(response)
+@cmd_router.message(Command("help"))
+async def cmd_help(message: types.Message, ru_com_list: dict):
+    response = 'Список команд\n'
+    for cmd in ru_com_list:
+        response += f"{cmd['command']}: {cmd['description']}\n"
+    await message.answer(response)
 
 
 # @cmd_router.message(Command("buttons"))
@@ -45,14 +45,13 @@ async def cmd_start(message: types.Message):
 
 @cmd_router.message(Command("cancel"))
 @cmd_router.callback_query(F.data == "cancel")
-async def cmd_cancel(event: types.Message | types.CallbackQuery, state: FSMContext, bot: Bot):
-    data: types.Message = (await state.get_data()).get("last_message", None)
-    if data is not None:
-        await bot.delete_message(chat_id=data.chat.id, message_id=data.message_id)
+async def cmd_cancel(event: types.Message | types.CallbackQuery, state: FSMContext):
     await state.clear()
     if isinstance(event, types.Message):
         await event.answer("Операция отменена")
-        await event.delete()
+        idm = int(event.message_id-1)
+        chid = event.chat.id
+        await event.bot.delete_message(chid, idm)
     else:
         await event.answer()
         await event.message.answer("Операция отменена")
